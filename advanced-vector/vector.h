@@ -279,16 +279,16 @@ public:
                 Swap(rhs_copy);
             }
             else {
-                if (rhs.size_ < size_) {
-                    std::copy(rhs.data_.GetAddress(), rhs.data_.GetAddress() + rhs.size_, data_.GetAddress());
-                    std::destroy_n(data_.GetAddress() + rhs.size_, size_ - rhs.size_);
-                }
-                else {
-                    std::copy(rhs.data_.GetAddress(), rhs.data_.GetAddress() + size_, data_.GetAddress());
+                size_t common_size = std::min(size_, rhs.size_);
+                std::copy_n(rhs.data_.GetAddress(), common_size, data_.GetAddress());
+
+                if (rhs.size_ > size_) {
                     std::uninitialized_copy_n(rhs.data_.GetAddress() + size_, rhs.size_ - size_, data_.GetAddress() + size_);
                 }
+                else {
+                    std::destroy_n(data_.GetAddress() + rhs.size_, size_ - rhs.size_);
+                }
                 size_ = rhs.size_;
-
             }
         }
         return *this;
